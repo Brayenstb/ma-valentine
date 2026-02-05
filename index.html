@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Question très importante 💘</title>
+
+    <style>
+        :root {
+            --bg1: #ffb3c6; --bg2: #ffe5ec; --primary: #ff4d6d;
+            --whatsapp: #25D366; --text: #2d2d2d;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root { --bg1: #1a1a2e; --bg2: #16213e; --text: #ffffff; }
+        }
+
+        body {
+            margin: 0; height: 100vh;
+            background: linear-gradient(135deg, var(--bg1), var(--bg2));
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: 'Segoe UI', sans-serif; color: var(--text);
+            overflow: hidden; text-align: center;
+        }
+
+        /* Setup Screen */
+        #setup-screen {
+            position: fixed; inset: 0; background: linear-gradient(135deg, var(--bg1), var(--bg2));
+            z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+        }
+
+        input {
+            padding: 15px; border-radius: 15px; border: 2px solid var(--primary);
+            font-size: 1.1rem; width: 80%; max-width: 300px; margin: 15px 0; outline: none;
+        }
+
+        /* Game Screen */
+        .container { z-index: 10; padding: 20px; width: 90%; }
+        h1 { font-size: 1.8rem; min-height: 4rem; margin-bottom: 1.5rem; }
+
+        .buttons { position: relative; height: 120px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+
+        .main-btn {
+            padding: 16px 32px; font-size: 1.1rem; font-weight: 700; border: none;
+            border-radius: 50px; cursor: pointer; box-shadow: 0 6px 20px rgba(255, 77, 109, 0.3);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #yes { background: var(--primary); color: white; }
+        #no { background: #adb5bd; color: white; }
+
+        .whatsapp-btn { background-color: var(--whatsapp); color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; }
+        .heart { position: fixed; pointer-events: none; z-index: 1; animation: float 4s ease-in forwards; }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .music-control {
+            position: fixed; bottom: 20px; left: 20px; z-index: 1000;
+            background: rgba(255,255,255,0.5); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="music-control" onclick="toggleMusic()">🎵</button>
+
+    <div id="setup-screen" style="display: none;">
+        <h1>Crée ta demande 💖</h1>
+        <p>Qui est la personne spéciale ?</p>
+        <input type="text" id="nameInput" placeholder="Prénom...">
+        <button class="main-btn" id="yes" onclick="generateLink()">Générer le lien WhatsApp</button>
+    </div>
+
+    <div class="container" id="main-content">
+        <h1 id="question">...</h1>
+        <div class="buttons">
+            <button id="yes" class="main-btn" onclick="handleYes()">...</button>
+            <button id="no" class="main-btn">...</button>
+        </div>
+        <div class="counter" id="counter" style="margin-top: 30px; opacity: 0.6; font-style: italic;">...</div>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.chosic.com/wp-content/uploads/2021/05/Lofi-Study-Calm-Peaceful-Music.mp3" type="audio/mpeg">
+    </audio>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    let targetName = urlParams.get('name');
+    let refuses = 0;
+    let yesScale = 1;
+    let audio = document.getElementById("bgMusic");
+
+    if (!targetName) {
+        document.getElementById('setup-screen').style.display = 'flex';
+        document.getElementById('main-content').style.display = 'none';
+    }
+
+    function toggleMusic() {
+        if (audio.paused) audio.play();
+        else audio.pause();
+    }
+
+    function generateLink() {
+        const name = document.getElementById('nameInput').value.trim();
+        if (!name) return alert("Choisis un prénom !");
+        const currentUrl = window.location.origin + window.location.pathname;
+        const shareUrl = `${currentUrl}?name=${encodeURIComponent(name)}`;
+        const waMsg = `Hé ! J'ai un truc important à te demander, regarde : ${shareUrl}`;
+        window.location.href = `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
+    }
+
+    function updateDisplay() {
+        if (!targetName) return;
+        document.getElementById("question").innerText = `${targetName}, veux-tu être ma Valentine ? 💖`;
+        document.getElementById("yes").innerText = "Oui ❤️";
+        document.getElementById("no").innerText = "Non 💔";
+        document.getElementById("counter").innerText = "Tentatives d'évasion : " + refuses;
+    }
+
+    function handleYes() {
+        const waMsg = "J'ai dit OUI ! Je suis ta Valentine ! 🥰💖";
+        const waLink = `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
+        document.getElementById("main-content").innerHTML = `
+            <h1>🥰 OUIIIII ❤️</h1>
+            <p>Prépare-toi ${targetName}, c'est le début d'un beau truc !</p>
+            <a href="${waLink}" class="main-btn whatsapp-btn">Lui annoncer sur WhatsApp ✅</a>
+            <br><br>
+            <button class="main-btn" style="font-size: 0.8rem; background: #666;" onclick="window.location.href=window.location.origin + window.location.pathname">Créer ma propre demande 🛠️</button>
+        `;
+        for(let i=0; i<40; i++) setTimeout(createHeart, i * 100);
+    }
+
+    const noBtn = document.getElementById("no");
+    const actionNo = () => {
+        if (audio.paused) audio.play().catch(() => {});
+        refuses++;
+        updateDisplay();
+        yesScale += 0.4;
+        document.getElementById("yes").style.transform = `scale(${yesScale})`;
+        const x = Math.random() * (window.innerWidth - 100);
+        const y = Math.random() * (window.innerHeight - 50);
+        noBtn.style.position = "fixed";
+        noBtn.style.left = x + "px";
+        noBtn.style.top = y + "px";
+        createHeart();
+    };
+
+    noBtn.onmouseover = actionNo;
+    noBtn.onclick = actionNo;
+
+    function createHeart() {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.innerText = "❤️";
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.bottom = "-5vh";
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 4000);
+    }
+
+    updateDisplay();
+</script>
+</body>
+</html>
